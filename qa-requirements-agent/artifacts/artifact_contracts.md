@@ -18,14 +18,14 @@ Error Handling. Общее правило: следующий этап полу�
 |---|---|
 | Producer | Agent + Skill `requirement_review` v1+ |
 | Consumer | Skill `task_design`, Skill `test_design`, человек при эскалации |
-| Version | 1.0 |
+| Version | 1.1 |
 | Validation | QG-1 в agent instruction + Completion Criteria skill |
 | Error Handling | Пустой или невалидный артефакт: этапы 4–6 не запускаются; агент повторяет этап анализа (Self-Refine, не более 2 итераций), затем эскалация |
 
 ```json
 {
   "artifact": "requirements_analysis",
-  "version": "1.0",
+  "version": "1.1",
   "source": {"system": "confluence", "page": "<id или url>"},
   "status": "ready | ready_partial | blocked",
   "requirements": [
@@ -50,7 +50,15 @@ Error Handling. Общее правило: следующий этап полу�
       "requirement_refs": ["REQ-1"],
       "description": "что зафиксировано",
       "evidence": ["цитата 1", "цитата 2 — для conflict обязательны обе"],
-      "blocking": true
+      "blocking": true,
+      "scope": ["REQ-1", "REQ-4"]
+    }
+  ],
+  "frozen_scope": [
+    {
+      "requirement_refs": ["REQ-1", "REQ-4"],
+      "issue_refs": ["ISS-1"],
+      "reason": "unresolved conflict"
     }
   ],
   "risks": [
@@ -58,6 +66,29 @@ Error Handling. Общее правило: следующий этап полу�
   ]
 }
 ```
+
+Значение полей:
+
+- `issues[].blocking` — влияет ли проблема на проектирование. `true` — область
+  замораживается, `false` — вопрос выносится в отчет, работа продолжается.
+- `issues[].scope` — требования, которых касается проблема: по ним
+  проектирование не ведется.
+- `frozen_scope` — объединенный перечень замороженных областей. Поля
+  `requirement_refs` и `issue_refs` обязательны, `reason` — краткое
+  основание.
+
+Статус артефакта выводится из `frozen_scope` по единому правилу:
+
+| Условие | `status` | Поведение флоу |
+|---|---|---|
+| Нет проблем с `blocking: true` | `ready` | проектирование ведется по всем требованиям |
+| Есть `blocking: true`, и `frozen_scope` не покрывает требования, от которых зависят остальные | `ready_partial` | проектирование ведется по незамороженной части, замороженная область уходит в эскалацию |
+| `frozen_scope` покрывает всю область либо затрагивает требования, от которых зависят остальные | `blocked` | проектирование не начинается, эскалация |
+
+Решение «продолжать ли по незамороженной части» принимает агент по этой
+таблице и не требует решения человека. Решение о трактовке
+противоречия всегда принимает человек и передается через эскалацию —
+агент трактовку не выбирает.
 
 ---
 
@@ -67,15 +98,15 @@ Error Handling. Общее правило: следующий этап полу�
 |---|---|
 | Producer | Agent + Skill `task_design` v1+ |
 | Consumer | Jira Tool (создание задач), итоговый отчет, Skill `test_design` (task_refs) |
-| Version | 1.0 |
+| Version | 1.1 |
 | Validation | QG-2: основание REQ-ID у каждой задачи, проверяемые критерии приемки, дубли проверены |
 | Error Handling | Невалидный артефакт — этап не выполняется; несоответствие после частичного создания задач в Jira — остановка и эскалация с перечнем созданных/несозданных |
 
 ```json
 {
   "artifact": "jira_tasks",
-  "version": "1.0",
-  "input": {"artifact": "requirements_analysis", "version": "1.0"},
+  "version": "1.1",
+  "input": {"artifact": "requirements_analysis", "version": "1.1"},
   "project_key": "<context: jira_project>",
   "tasks": [
     {
@@ -90,7 +121,7 @@ Error Handling. Общее правило: следующий этап полу�
       "priority": "highest | high | medium | low",
       "dependencies": ["TASK-2"],
       "requirement_refs": ["REQ-1", "REQ-3"],
-      "status": "to_create | created | duplicate_of:KEY"
+      "status": "to_create | created | duplicate_of:KEY | pending_clarification"
     }
   ],
   "coverage": [
@@ -98,12 +129,31 @@ Error Handling. Общее правило: следующий этап полу�
   ],
   "not_covered": [
     {"requirement_id": "REQ-9", "reason": "unresolved conflict", "issue_ref": "ISS-3"}
+  ],
+  "clarification_requests": [
+    {
+      "id": "CLR-1",
+      "requirement_refs": ["REQ-4"],
+      "question": "какой результат считать выполнением задачи",
+      "blocks": ["TASK-2"]
+    }
   ]
 }
 ```
 
 Поле `created_key` заполняется агентом из фактического ответа Jira после
 создания — подтверждение от инструмента, а не из генерации.
+
+Ограничения схемы:
+
+- `acceptance_criteria` не может содержать подмену критерия ссылкой на
+  требование («соответствует REQ-1»): если конкретный критерий в
+  требованиях не задан, у задачи пустой `acceptance_criteria`, статус
+  `pending_clarification` и запись в `clarification_requests`. Такая
+  задача в Jira не создается.
+- `clarification_requests[].question` — конкретный вопрос, а не
+  «уточнить требования»; `blocks` указывает, что именно заблокировано
+  (ID задачи, REQ-ID или область тестирования).
 
 ---
 
@@ -113,7 +163,7 @@ Error Handling. Общее правило: следующий этап полу�
 |---|---|
 | Producer | Agent + Skill `test_design` v1+ |
 | Consumer | выбранная TMS (загрузка сценариев), итоговый отчет |
-| Version | 1.0 |
+| Version | 1.1 |
 | Validation | QG-3: покрытие, типы сценариев, трассировка, отсутствие дублей |
 | Error Handling | TMS недоступна — артефакт сохраняется локально, факт фиксируется в отчете; невалидный артефакт — самокоррекция до 2 итераций, затем эскалация |
 
@@ -124,8 +174,8 @@ Error Handling. Общее правило: следующий этап полу�
 ```json
 {
   "artifact": "test_model",
-  "version": "1.0",
-  "input": {"artifact": "requirements_analysis", "version": "1.0"},
+  "version": "1.1",
+  "input": {"artifact": "requirements_analysis", "version": "1.1"},
   "tms_project": "<context: tms_project>",
   "scenarios": [
     {
@@ -149,7 +199,7 @@ Error Handling. Общее правило: следующий этап полу�
       "requirement_id": "REQ-1",
       "positive": ["TC-1"],
       "negative": ["TC-4"],
-      "boundary": ["[GAP] граница не задана в требованиях"]
+      "boundary": ["not_applicable: границы в требованиях не заданы"]
     }
   ],
   "not_covered": [
@@ -159,10 +209,22 @@ Error Handling. Общее правило: следующий этап полу�
     "positive": 12,
     "negative": 7,
     "boundary": 5,
-    "requirements_without_negative": ["REQ-6"]
+    "requirements_without_negative": [
+      {"requirement_id": "REQ-6", "reason": "not_applicable: условие нарушения не задано"}
+    ]
   }
 }
 ```
+
+Значения ячеек матрицы:
+
+- список ID сценариев — тип покрыт;
+- `not_applicable: <обоснование>` — тип к требованию неприменим
+  (нет условия нарушения или границ в требованиях); это обоснованное
+  решение, а не пробел покрытия, сценарий ради заполнения ячейки не
+  создается;
+- `[GAP]: <что именно не задано>` — проверка предполагалась, но данных в
+  требованиях нет; значение выносится в отчет как запрос уточнения.
 
 ---
 
@@ -181,10 +243,15 @@ markdown-структура обязательных разделов:
 1. `Итог` — общий статус run: complete / partial / stopped + причины.
 2. `Этапы` — таблица: этап, skill и версия, gate, статус.
 3. `Найденные проблемы` — ambiguity / conflict / gap / assumption,
-   риск, ссылки REQ/ISS.
+   риск, ссылки REQ/ISS; отдельно замороженная область (`frozen_scope`)
+   и статус анализа (`ready` / `ready_partial` / `blocked`).
 4. `Задачи Jira` — TASK-ID → фактический ключ из ответа Jira, либо
-   причина, по которой задача не создавалась.
+   причина, по которой задача не создавалась (дубль, `pending_clarification`);
+   список запросов уточнения `clarification_requests` с конкретными
+   вопросами.
 5. `Тестовая модель` — статистика по типам, покрытие critical
-   требований, ссылочная карта REQ → TC.
+   требований, ссылочная карта REQ → TC, обоснования `not_applicable`
+   по типам проверок.
 6. `Эскалации и требуемые данные` — что нужно от человека для
-   продолжения.
+   продолжения; по замороженной области — конкретный вопрос и
+   перечень REQ-ID.

@@ -2,3 +2,6 @@ demo/store.json
 demo/store.json.tmp
 __pycache__/
 .venv/
+artifacts/*/
+!artifacts/20261102T173435029/
+!artifacts/20261102T173435029/**

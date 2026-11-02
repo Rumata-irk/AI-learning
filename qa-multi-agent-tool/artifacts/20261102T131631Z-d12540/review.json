@@ -1,0 +1,60 @@
+{
+  "artifact": "requirements_analysis",
+  "version": "1.1",
+  "run_id": "20261102T131631Z-d12540",
+  "status": "ready_partial",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Healthchecker получает marketplace_api.health из Prometheus.",
+      "evidence": "получает метрики функционального блока marketplace_api.health из Prometheus",
+      "type": "functional"
+    },
+    {
+      "id": "REQ-2",
+      "text": "Интервал опроса составляет 60 секунд.",
+      "evidence": "Интервал опроса составляет 60 секунд",
+      "type": "functional"
+    },
+    {
+      "id": "REQ-3",
+      "text": "После успешного получения сохраняется последнее значение метрики.",
+      "evidence": "сохраняет последнее значение метрики",
+      "type": "functional"
+    }
+  ],
+  "issues": [
+    {
+      "id": "ISS-1",
+      "kind": "gap",
+      "requirement_refs": [
+        "REQ-1"
+      ],
+      "description": "Не определено поведение при недоступности Prometheus",
+      "blocking": true,
+      "scope": [
+        "REQ-1"
+      ]
+    }
+  ],
+  "frozen_scope": [
+    {
+      "requirement_refs": [
+        "REQ-1"
+      ],
+      "issue_refs": [
+        "ISS-1"
+      ],
+      "reason": "missing failure behavior"
+    }
+  ],
+  "clarifications": [
+    {
+      "id": "CLR-1",
+      "question": "Какой результат и статус должен возвращать Healthchecker при недоступности Prometheus?",
+      "requirement_refs": [
+        "REQ-1"
+      ]
+    }
+  ]
+}

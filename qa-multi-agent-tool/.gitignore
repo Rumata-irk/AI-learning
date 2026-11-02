@@ -1,0 +1,4 @@
+demo/store.json
+demo/store.json.tmp
+__pycache__/
+.venv/

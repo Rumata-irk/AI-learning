@@ -1,0 +1,50 @@
+{
+  "artifact": "jira_tasks",
+  "version": "1.1",
+  "mode": "demo",
+  "tasks": [
+    {
+      "id": "TASK-1",
+      "summary": "Получать marketplace_api.health из Prometheus",
+      "requirement_refs": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [],
+      "status": "pending_clarification",
+      "clarification_refs": [
+        "CLR-1"
+      ]
+    },
+    {
+      "id": "TASK-2",
+      "summary": "Опросить Prometheus с интервалом 60 секунд",
+      "requirement_refs": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Интервал между опросами составляет 60 секунд"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "TASK-3",
+      "summary": "Сохранять последнее успешное значение метрики",
+      "requirement_refs": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "После успешного опроса доступно последнее значение метрики"
+      ],
+      "status": "ready"
+    }
+  ],
+  "clarification_requests": [
+    {
+      "id": "CLR-1",
+      "question": "Какой результат и статус должен возвращать Healthchecker при недоступности Prometheus?",
+      "requirement_refs": [
+        "REQ-1"
+      ]
+    }
+  ]
+}

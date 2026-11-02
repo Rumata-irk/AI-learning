@@ -1,0 +1,41 @@
+{
+  "artifact": "test_model",
+  "version": "1.1",
+  "mode": "demo",
+  "scenarios": [
+    {
+      "id": "TC-1",
+      "title": "Получение метрики при доступном Prometheus",
+      "type": "positive",
+      "requirement_refs": [
+        "REQ-1"
+      ],
+      "status": "blocked_by_clarification"
+    },
+    {
+      "id": "TC-2",
+      "title": "Опрос выполняется через 60 секунд",
+      "type": "boundary",
+      "requirement_refs": [
+        "REQ-2"
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "TC-3",
+      "title": "Сохранение последнего значения после успешного опроса",
+      "type": "positive",
+      "requirement_refs": [
+        "REQ-3"
+      ],
+      "status": "ready"
+    }
+  ],
+  "coverage_exceptions": [
+    {
+      "requirement_id": "REQ-1",
+      "type": "negative",
+      "reason": "Поведение при ошибке не задано в требованиях"
+    }
+  ]
+}

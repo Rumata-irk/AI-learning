@@ -60,7 +60,12 @@ def get_requirements(page_id: str) -> dict:
     pages = json.loads(DATA.read_text(encoding="utf-8"))
     if page_id not in pages:
         raise ValueError(f"Demo page not found: {page_id}")
-    return {"source": "local-demo", "page_id": page_id, "text": pages[page_id]}
+    page = pages[page_id]
+    if isinstance(page, str):
+        return {"source": "local-demo", "page_id": page_id, "title": page_id, "text": page}
+    body = page["body"]
+    text = "\n".join(body) if isinstance(body, list) else body
+    return {"source": "local-demo", "page_id": page_id, "title": page.get("title", page_id), "text": text}
 
 
 def _create(kind, project, external_key, title, description):

@@ -17,6 +17,16 @@ opencode
 
 Изменения агентов, skills и `opencode.json` применяются после перезапуска OpenCode. Пример требований — `demo/requirements.json`, результаты — `artifacts/<run-id>/`.
 
+Доступные страницы:
+
+| Страница | Назначение | Ожидаемый итог |
+|---|---|---|
+| `healthchecker-full` | полные требования + один пробел по отказу Prometheus | `ready_partial`, готовые задачи и черновики |
+| `healthchecker-ready` | полные требования без пробелов | `ready`, всё готово к записи |
+| `healthchecker-demo` | минимум данных | `blocked`, gate останавливает флоу |
+
+Результаты реальных прогонов в OpenCode и разбор поведения gate — в `docs/opencode-run.md`.
+
 ## Offline demo
 
 ```powershell

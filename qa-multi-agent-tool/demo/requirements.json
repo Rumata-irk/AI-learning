@@ -1,3 +1,27 @@
 {
-  "healthchecker-demo": "Healthchecker получает метрики функционального блока marketplace_api.health из Prometheus. Интервал опроса составляет 60 секунд. При успешном получении сервис сохраняет последнее значение метрики. Поведение при недоступности Prometheus не определено."
+  "healthchecker-demo": "Healthchecker получает метрики функционального блока marketplace_api.health из Prometheus. Интервал опроса составляет 60 секунд. При успешном получении сервис сохраняет последнее значение метрики. Поведение при недоступности Prometheus не определено.",
+  "healthchecker-full": {
+    "title": "Healthchecker: получение метрик marketplace_api.health",
+    "body": [
+      "Healthchecker получает метрики функционального блока marketplace_api.health из Prometheus.",
+      "Метрика marketplace_api_health_status должна быть получена из Prometheus HTTP API по адресу, заданному в конфигурации prometheus.url.",
+      "Успешным получением считается HTTP-ответ 200, содержащий непустой набор метрик marketplace_api.health.",
+      "Интервал опроса составляет 60 секунд и отсчитывается от завершения предыдущего опроса.",
+      "При успешном получении сервис сохраняет последнее значение метрики в памяти процесса.",
+      "Сохранённое значение доступно в ответе GET /healthchecker в поле last_metric_value.",
+      "Поведение при недоступности Prometheus не определено."
+    ]
+  },
+  "healthchecker-ready": {
+    "title": "Healthchecker: полный набор требований",
+    "body": [
+      "Healthchecker получает метрики функционального блока marketplace_api.health из Prometheus.",
+      "Метрика marketplace_api_health_status должна быть получена из Prometheus HTTP API по адресу из конфигурации prometheus.url.",
+      "Успешным получением считается HTTP-ответ 200 с непустым набором метрик marketplace_api.health.",
+      "Интервал опроса составляет 60 секунд и отсчитывается от завершения предыдущего опроса.",
+      "При успешном получении сервис сохраняет последнее значение метрики в памяти процесса.",
+      "Сохранённое значение доступно в ответе GET /healthchecker в поле last_metric_value.",
+      "При недоступности Prometheus сервис возвращает HTTP 503 в GET /healthchecker и не изменяет last_metric_value."
+    ]
+  }
 }

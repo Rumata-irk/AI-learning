@@ -1,11 +1,11 @@
 {
   "healthchecker-demo": "Healthchecker получает метрики функционального блока marketplace_api.health из Prometheus. Интервал опроса составляет 60 секунд. При успешном получении сервис сохраняет последнее значение метрики. Поведение при недоступности Prometheus не определено.",
   "healthchecker-full": {
-    "title": "Healthchecker: получение метрик marketplace_api.health",
+    "title": "Healthchecker: получение метрики marketplace_api.health",
     "body": [
-      "Healthchecker получает метрики функционального блока marketplace_api.health из Prometheus.",
-      "Метрика marketplace_api_health_status должна быть получена из Prometheus HTTP API по адресу, заданному в конфигурации prometheus.url.",
-      "Успешным получением считается HTTP-ответ 200, содержащий непустой набор метрик marketplace_api.health.",
+      "Healthchecker получает значение метрики marketplace_api_health_status блока marketplace_api.health из Prometheus.",
+      "Метрика запрашивается у Prometheus HTTP API методом GET по эндпоинту /api/v1/query, адрес задаётся в конфигурации prometheus.url, параметр query равен marketplace_api_health_status.",
+      "Успешным получением считается HTTP-ответ 200, в теле которого есть результат с непустым значением метрики.",
       "Интервал опроса составляет 60 секунд и отсчитывается от завершения предыдущего опроса.",
       "При успешном получении сервис сохраняет последнее значение метрики в памяти процесса.",
       "Сохранённое значение доступно в ответе GET /healthchecker в поле last_metric_value.",
@@ -15,13 +15,14 @@
   "healthchecker-ready": {
     "title": "Healthchecker: полный набор требований",
     "body": [
-      "Healthchecker получает метрики функционального блока marketplace_api.health из Prometheus.",
-      "Метрика marketplace_api_health_status должна быть получена из Prometheus HTTP API по адресу из конфигурации prometheus.url.",
-      "Успешным получением считается HTTP-ответ 200 с непустым набором метрик marketplace_api.health.",
+      "Healthchecker получает значение метрики marketplace_api_health_status блока marketplace_api.health из Prometheus.",
+      "Метрика запрашивается у Prometheus HTTP API методом GET по эндпоинту /api/v1/query, адрес задаётся в конфигурации prometheus.url, параметр query равен marketplace_api_health_status.",
+      "Успешным получением считается HTTP-ответ 200, в теле которого есть результат с непустым значением метрики.",
       "Интервал опроса составляет 60 секунд и отсчитывается от завершения предыдущего опроса.",
       "При успешном получении сервис сохраняет последнее значение метрики в памяти процесса.",
       "Сохранённое значение доступно в ответе GET /healthchecker в поле last_metric_value.",
-      "При недоступности Prometheus сервис возвращает HTTP 503 в GET /healthchecker и не изменяет last_metric_value."
+      "При недоступности Prometheus сервис возвращает HTTP 503 в ответ на GET /healthchecker и не изменяет last_metric_value.",
+      "Повторные попытки получения метрики не выполняются: следующий опрос происходит через штатный интервал 60 секунд."
     ]
   }
 }

@@ -1,0 +1,15 @@
+{
+  "run_id": "20261116-091624",
+  "project": "DEMO",
+  "page_used": "healthchecker-full",
+  "mode": "demo",
+  "creation_gate": {
+    "explicit_permission": false,
+    "reason": "Пользователь не передал явного разрешения (аргумент пуст). Локальные demo-записи не создавались.",
+    "tasks_created": [],
+    "tests_created": [],
+    "skipped_ready_items": ["T-001", "T-002", "TC-001", "TC-002", "TC-003", "TC-004", "TC-005", "TC-006"],
+    "skipped_drafts": ["D-001", "D-002", "D-003", "D-004", "DT-001", "DT-002", "DT-003", "DT-004", "DT-005"],
+    "note": "При явном разрешении внешний ключ был бы <run-id>:<local_id>, напр. 20261116-091624:T-001 / 20261116-091624:TC-001."
+  }
+}

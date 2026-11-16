@@ -7,6 +7,7 @@
 | `20261116-084706` | `healthchecker-demo` | `BLOCKED` | требования слишком куцые, всё заморожено |
 | `20261116-090012-healthchecker-demo` | `healthchecker-demo` | `BLOCKED` | OpenCode работал на конфигурации до добавления `healthchecker-full` |
 | `20261116-090639` | `healthchecker-full` | `BLOCKED` | в данных был конфликт «набор метрик» ↔ одна метрика и не задан контракт запроса |
+| `20261116-091624` | `healthchecker-full` | `PARTIAL` | успешный путь: 2 готовые задачи, 6 сценариев, 9 черновиков |
 
 Что подтверждено всеми прогонами:
 
@@ -37,3 +38,17 @@
 3. В `source.md` должна быть страница `healthchecker-full`, в `report.md` —
    `PARTIAL`, готовые задачи и черновики, а в `tasks.md`/`tests.md` — те же
    REQ-ID, что в `review.md`.
+
+## Найденный дефект прогона 20261116-091624
+
+Агент исказил имя метрики при записи `source.md`: вместо
+`marketplace_api_health_status`, как вернул MCP, записал `marketplace_api.health`.
+Причиной, вероятно, стал заголовок страницы «…получение метрики
+marketplace_api.health», который смешивался с именем метрики из тела.
+
+Искажение попало в `review.md`, `tasks.md` (T-001) и `tests.md` (TC-003).
+Исправлено вручную по ответу MCP; в отчёте отмечено в разделе «Ошибки».
+Заголовки страниц переименованы, чтобы исключить путаницу:
+
+- `healthchecker-full` → «Healthchecker: запрос marketplace_api_health_status из Prometheus»;
+- `healthchecker-ready` → «Healthchecker: полный набор требований к опросу Prometheus».

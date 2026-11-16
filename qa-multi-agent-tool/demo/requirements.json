@@ -1,7 +1,7 @@
 {
   "healthchecker-demo": "Healthchecker получает метрики функционального блока marketplace_api.health из Prometheus. Интервал опроса составляет 60 секунд. При успешном получении сервис сохраняет последнее значение метрики. Поведение при недоступности Prometheus не определено.",
   "healthchecker-full": {
-    "title": "Healthchecker: получение метрики marketplace_api.health",
+    "title": "Healthchecker: запрос marketplace_api_health_status из Prometheus",
     "body": [
       "Healthchecker получает значение метрики marketplace_api_health_status блока marketplace_api.health из Prometheus.",
       "Метрика запрашивается у Prometheus HTTP API методом GET по эндпоинту /api/v1/query, адрес задаётся в конфигурации prometheus.url, параметр query равен marketplace_api_health_status.",
@@ -13,7 +13,7 @@
     ]
   },
   "healthchecker-ready": {
-    "title": "Healthchecker: полный набор требований",
+    "title": "Healthchecker: полный набор требований к опросу Prometheus",
     "body": [
       "Healthchecker получает значение метрики marketplace_api_health_status блока marketplace_api.health из Prometheus.",
       "Метрика запрашивается у Prometheus HTTP API методом GET по эндпоинту /api/v1/query, адрес задаётся в конфигурации prometheus.url, параметр query равен marketplace_api_health_status.",

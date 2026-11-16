@@ -3,5 +3,8 @@ demo/store.json.tmp
 __pycache__/
 .venv/
 artifacts/*/
+!artifacts/README.md
 !artifacts/20261102T173435029/
 !artifacts/20261102T173435029/**
+!artifacts/20261116-091624/
+!artifacts/20261116-091624/**

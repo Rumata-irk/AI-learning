@@ -1,0 +1,40 @@
+{
+  "artifact": "jira_tasks",
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "TASK-1",
+      "summary": "Healthchecker получает метрики функционального блока marketplace_api.health из P",
+      "requirement_refs": [
+        "REQ-1"
+      ],
+      "acceptance_criteria": [
+        "Наблюдаемо: Healthchecker получает метрики функционального блока marketplace_api.health из Prometheus."
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "TASK-2",
+      "summary": "Интервал опроса составляет 60 секунд.",
+      "requirement_refs": [
+        "REQ-2"
+      ],
+      "acceptance_criteria": [
+        "Наблюдаемо: Интервал опроса составляет 60 секунд."
+      ],
+      "status": "ready"
+    },
+    {
+      "id": "TASK-3",
+      "summary": "При успешном получении сервис сохраняет последнее значение метрики.",
+      "requirement_refs": [
+        "REQ-3"
+      ],
+      "acceptance_criteria": [
+        "Наблюдаемо: При успешном получении сервис сохраняет последнее значение метрики."
+      ],
+      "status": "ready"
+    }
+  ],
+  "drafts": []
+}

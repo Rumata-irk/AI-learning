@@ -1,0 +1,37 @@
+{
+  "artifact": "test_model",
+  "version": "1.0",
+  "scenarios": [
+    {
+      "id": "TC-1",
+      "title": "Проверка требования REQ-1",
+      "type": "positive",
+      "requirement_refs": [
+        "REQ-1"
+      ],
+      "expected_result": "Healthchecker получает метрики функционального блока marketplace_api.health из Prometheus.",
+      "status": "ready"
+    },
+    {
+      "id": "TC-2",
+      "title": "Проверка требования REQ-2",
+      "type": "positive",
+      "requirement_refs": [
+        "REQ-2"
+      ],
+      "expected_result": "Интервал опроса составляет 60 секунд.",
+      "status": "ready"
+    },
+    {
+      "id": "TC-3",
+      "title": "Проверка требования REQ-3",
+      "type": "positive",
+      "requirement_refs": [
+        "REQ-3"
+      ],
+      "expected_result": "При успешном получении сервис сохраняет последнее значение метрики.",
+      "status": "ready"
+    }
+  ],
+  "drafts": []
+}

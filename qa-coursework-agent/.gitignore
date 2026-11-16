@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+data/jira_tasks.json
+data/tms_cases.json
+artifacts/*/
+!artifacts/README.md
+!artifacts/sample-run/
+!artifacts/sample-run/**
+eval/results/*.json
+!eval/results/eval_results.json

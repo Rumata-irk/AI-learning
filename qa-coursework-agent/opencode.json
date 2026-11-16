@@ -1,0 +1,21 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "qa-orchestrator",
+  "mcp": {
+    "confluence": {
+      "type": "local",
+      "command": ["python", "mcp/confluence/server.py"],
+      "enabled": true
+    },
+    "jira": {
+      "type": "local",
+      "command": ["python", "mcp/jira/server.py"],
+      "enabled": true
+    },
+    "tms": {
+      "type": "local",
+      "command": ["python", "mcp/tms/server.py"],
+      "enabled": true
+    }
+  }
+}

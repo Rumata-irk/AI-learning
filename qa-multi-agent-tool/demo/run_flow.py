@@ -4,8 +4,6 @@ This is a validation harness for artifacts and gates. It does not claim to
 run an LLM agent and it does not create Jira/Qase records.
 """
 import json
-import re
-import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -31,25 +29,82 @@ def main():
         {"id": "REQ-2", "text": "Интервал опроса составляет 60 секунд.", "evidence": "Интервал опроса составляет 60 секунд", "type": "functional"},
         {"id": "REQ-3", "text": "После успешного получения сохраняется последнее значение метрики.", "evidence": "сохраняет последнее значение метрики", "type": "functional"},
     ]
-    issues = [{"id": "ISS-1", "kind": "gap", "requirement_refs": ["REQ-1"], "description": "Не определено поведение при недоступности Prometheus", "blocking": True, "scope": ["REQ-1"]}]
-    review = {"artifact": "requirements_analysis", "version": "1.1", "run_id": run_id, "status": "ready_partial", "requirements": requirements, "issues": issues, "frozen_scope": [{"requirement_refs": ["REQ-1"], "issue_refs": ["ISS-1"], "reason": "missing failure behavior"}], "clarifications": [{"id": "CLR-1", "question": "Какой результат и статус должен возвращать Healthchecker при недоступности Prometheus?", "requirement_refs": ["REQ-1"]}]}
+    issue = {"id": "P-001", "kind": "gap", "requirement_refs": ["REQ-1"], "description": "Не определено поведение при недоступности Prometheus", "severity": "blocker", "blocking": True, "scope": ["REQ-1"], "question": "Какой результат и статус должен возвращать Healthchecker при недоступности Prometheus?"}
+    review = {
+        "artifact": "requirements_analysis",
+        "version": "2.0",
+        "run_id": run_id,
+        "status": "ready_partial",
+        "requirements": requirements,
+        "issues": [issue],
+        "frozen_scope": [{"requirement_refs": ["REQ-1"], "issue_refs": ["P-001"], "reason": "missing failure behavior"}],
+        "clarifications": [{"id": "CLR-1", "question": issue["question"], "requirement_refs": ["REQ-1"]}],
+    }
     dump(out / "review.json", review)
 
-    tasks = {"artifact": "jira_tasks", "version": "1.1", "mode": "demo", "tasks": [
-        {"id": "TASK-1", "summary": "Получать marketplace_api.health из Prometheus", "requirement_refs": ["REQ-1"], "acceptance_criteria": [], "status": "pending_clarification", "clarification_refs": ["CLR-1"]},
-        {"id": "TASK-2", "summary": "Опросить Prometheus с интервалом 60 секунд", "requirement_refs": ["REQ-2"], "acceptance_criteria": ["Интервал между опросами составляет 60 секунд"], "status": "ready"},
-        {"id": "TASK-3", "summary": "Сохранять последнее успешное значение метрики", "requirement_refs": ["REQ-3"], "acceptance_criteria": ["После успешного опроса доступно последнее значение метрики"], "status": "ready"},
-    ], "clarification_requests": review["clarifications"]}
+    tasks = {
+        "artifact": "jira_tasks",
+        "version": "2.0",
+        "mode": "demo",
+        "tasks": [
+            {"id": "TASK-2", "summary": "Опрашивать Prometheus с интервалом 60 секунд", "requirement_refs": ["REQ-2"], "acceptance_criteria": ["Последовательные плановые опросы выполняются с интервалом 60 секунд"], "status": "ready"},
+            {"id": "TASK-3", "summary": "Сохранять последнее успешное значение метрики", "requirement_refs": ["REQ-3"], "acceptance_criteria": ["После успешного опроса доступно последнее значение метрики"], "status": "ready"},
+        ],
+        "drafts": [
+            {"id": "DRAFT-TASK-1", "summary": "Получать marketplace_api.health из Prometheus", "requirement_refs": ["REQ-1"], "acceptance_criteria": [], "status": "pending_clarification", "frozen_by": ["P-001"], "clarification_refs": ["CLR-1"], "note": "Не подлежит созданию до снятия P-001"},
+        ],
+        "clarification_requests": review["clarifications"],
+    }
     dump(out / "tasks.json", tasks)
 
-    tests = {"artifact": "test_model", "version": "1.1", "mode": "demo", "scenarios": [
-        {"id": "TC-1", "title": "Получение метрики при доступном Prometheus", "type": "positive", "requirement_refs": ["REQ-1"], "status": "blocked_by_clarification"},
-        {"id": "TC-2", "title": "Опрос выполняется через 60 секунд", "type": "boundary", "requirement_refs": ["REQ-2"], "status": "ready"},
-        {"id": "TC-3", "title": "Сохранение последнего значения после успешного опроса", "type": "positive", "requirement_refs": ["REQ-3"], "status": "ready"},
-    ], "coverage_exceptions": [{"requirement_id": "REQ-1", "type": "negative", "reason": "Поведение при ошибке не задано в требованиях"}]}
+    tests = {
+        "artifact": "test_model",
+        "version": "2.0",
+        "mode": "demo",
+        "scenarios": [
+            {"id": "TC-2", "title": "Плановый опрос выполняется через 60 секунд", "type": "boundary", "requirement_refs": ["REQ-2"], "status": "ready"},
+            {"id": "TC-3", "title": "Сохранение последнего значения после успешного опроса", "type": "positive", "requirement_refs": ["REQ-3"], "status": "ready"},
+        ],
+        "drafts": [
+            {"id": "DRAFT-TC-1", "title": "Получение метрики при доступном Prometheus", "type": "positive", "requirement_refs": ["REQ-1"], "status": "blocked_by_clarification", "frozen_by": ["P-001"]},
+        ],
+        "coverage_exceptions": [
+            {"requirement_id": "REQ-1", "type": "negative", "reason": "Поведение при отказе не задано в требованиях; область заморожена"},
+        ],
+    }
     dump(out / "test_model.json", tests)
 
-    report = f"""# Demo workflow report\n\n- Run: `{run_id}`\n- Mode: `demo`\n- Final status: `PARTIAL`\n- Requirement review: `ready_partial`\n- Tasks ready for external creation: 2\n- Tasks pending clarification: 1\n- Test scenarios: 3\n- External Jira/Qase writes: 0\n\n## Quality Gates\n\n- QG-1: passed with `ready_partial`; REQ-1 frozen due to missing failure behavior.\n- QG-2: passed for ready tasks; TASK-1 is not ready for creation.\n- QG-3: passed for independent requirements; negative coverage for REQ-1 is explicitly not generated.\n\n## Clarification required\n\nCLR-1: {review['clarifications'][0]['question']}\n\nArtifacts are in this directory. Local MCP data is not Jira or Qase data.\n"""
+    report = f"""# Demo workflow report
+
+- Run: `{run_id}`
+- Mode: `demo`
+- Final status: `PARTIAL`
+- Requirement review: `ready_partial`
+- Ready tasks: {len(tasks["tasks"])}
+- Draft tasks (не подлежат созданию): {len(tasks["drafts"])}
+- Ready scenarios: {len(tests["scenarios"])}
+- Draft scenarios (не подлежат созданию): {len(tests["drafts"])}
+- External Jira/Qase writes: 0
+
+## Quality Gates
+
+- QG-1: `ready_partial` — `P-001` (blocker) заморозил `REQ-1`.
+- QG-2: готовые задачи {", ".join(t["id"] for t in tasks["tasks"])}; черновик `DRAFT-TASK-1` исключён из записи.
+- QG-3: готовые сценарии {", ".join(t["id"] for t in tests["scenarios"])}; негативная проверка по `REQ-1` не создана, причина зафиксирована.
+
+## Черновики, не подлежащие созданию
+
+- `DRAFT-TASK-1` (`REQ-1`) — заморожен `P-001`.
+- `DRAFT-TC-1` (`REQ-1`) — заморожен `P-001`.
+
+Следующий этап читает только массивы `tasks` и `scenarios`.
+
+## Clarification required
+
+CLR-1: {issue["question"]}
+
+Artifacts are in this directory. Local MCP data is not Jira or Qase data.
+"""
     (out / "report.md").write_text(report, encoding="utf-8")
     print(json.dumps({"run_id": run_id, "status": "PARTIAL", "artifacts": str(out)}, ensure_ascii=False))
 
